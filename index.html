@@ -1,21 +1,23 @@
 <!doctype html>
 <html>
     <head>
-        <script src="/js/jquery-1.10.2.min.js"></script>
+        <script src="js/jquery-1.10.2.min.js"></script>
         <script>
             $("document").ready(function(){
                 $("#stich_list").submit(function(e){
                     e.preventDefault();
                     var increases = $("#increases").val()/1;
-                    var stiches = $("#stiches").val();
+                    var stiches = $("#stiches").val()/1;
                     
                     if(increases=="" || stiches==""){
                         alert("Please enter numbers in both fields");
+                        $("#output").html("");
                         return;
                     }
                     
                     if(!is_int(increases) || !is_int(stiches)){
                         alert("Both values must be numbers");
+                        $("#output").html("");
                         return;
                     }
                     
@@ -36,7 +38,7 @@
                         reversed = true;
                     }
                     
-                    var ratio = (increases/1 + 1)/stiches;
+                    var ratio = (increases + 1)/stiches;
                     
                     var list = [];
                     var cache = 0;
@@ -85,6 +87,18 @@
                         best_score = new_score;
                     }
                 }
+                
+                // now see if turning left half helps
+                if(!(best_list.length%2)){
+                    var first_half = best_list.slice(0, best_list.length / 2);
+                    var last_half = best_list.slice(best_list.length / 2);
+                    var test_list = first_half.concat(last_half.reverse());
+                    if(score_symetry(test_list)>best_score){
+                        best_list = test_list.slice(0);
+                    }
+                }
+                
+                
                 return best_list;
             }
             
@@ -126,7 +140,7 @@
     <body>
     
         <center>
-            <h1>Stich Increase Calculator</h1>
+            <h1>Stitch Increase Calculator</h1>
             <form id="stich_list">
                 <table cellpadding="5" cellspacing="0">
                     <tr>
