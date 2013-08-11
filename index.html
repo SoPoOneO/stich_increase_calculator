@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="/js/jquery-1.10.2.min.js"></script>
+        <script>
+            $("document").ready(function(){
+                $("#stich_list").submit(function(e){
+                    e.preventDefault();
+                    var increases = $("#increases").val()/1;
+                    var stiches = $("#stiches").val();
+                    
+                    if(increases=="" || stiches==""){
+                        alert("Please enter numbers in both fields");
+                        return;
+                    }
+                    
+                    if(!is_int(increases) || !is_int(stiches)){
+                        alert("Both values must be numbers");
+                        return;
+                    }
+                    
+                    var reversed = false;
+                    
+                    if(increases == stiches){
+                        var output = "";
+                        for(var i = 0; i<increases; i++){output+= "1-";}
+                        $("#output").html(output);
+                        return
+                    }
+                    
+                    if(increases >= stiches){
+                        var i = increases;
+                        var s = stiches;
+                        stiches = i;
+                        increases = s;
+                        reversed = true;
+                    }
+                    
+                    var ratio = (increases/1 + 1)/stiches;
+                    
+                    var list = [];
+                    var cache = 0;
+                    var count = 0;
+                    for(var i=0; i<stiches; i++){
+                        var num = Math.floor(i*ratio);
+                        if(num == cache){count++;}
+                        else{
+                            list.push(count);
+                            cache = num;
+                            count=1;
+                        }
+                    }
+                    list.push(count);
+                    
+                    list = maximize_symetry(list);
+                    
+                    if(reversed){
+                    
+                        for(var i=0; i<list.length; i++){
+                            var text = "";
+                            for(var j=0; j<list[i]; j++){text+="-";}
+                            list[i] = text;
+                        }
+                        var output = list.join("1");
+                    
+                    }
+                    
+                    else{
+                        var output = list.join("-");
+                    }
+                    
+                    $("#output").html(output);
+                });
+            });
+        
+            function maximize_symetry(list){
+                var limit = list.length;
+                var best_list = list.slice(0);
+                var best_score = score_symetry(best_list);
+                for(var i=1; i<limit; i++){
+                    list.push(list.shift());
+                    var new_score = score_symetry(list);
+                    if(new_score > best_score){
+                        best_list = list.slice(0);
+                        best_score = new_score;
+                    }
+                }
+                return best_list;
+            }
+            
+            function score_symetry(list){
+                var score = 0;
+                var problem = 0;
+                for(var i=0; i<list.length; i++){
+                    var start = list[i];
+                    var end = list[list.length - (i+1)];
+                    if(start == end && problem==0){score++;}
+                    else{problem = 1;}
+                }
+                return score;
+            }
+        
+            function is_int(val){
+                return (Math.floor(val) == val && $.isNumeric(val));
+            }
+        
+        </script>
+        <style>
+            #increases, #stiches{
+                width: 35px;
+            }
+            
+            #stich_list{
+                margin: 20px;
+            }
+            
+            #output{
+                font-size: 20px;
+            }
+            
+            *{
+                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+    
+        <center>
+            <h1>Stich Increase Calculator</h1>
+            <form id="stich_list">
+                <table cellpadding="5" cellspacing="0">
+                    <tr>
+                        <td>Increasess: </td>
+                        <td><input name="increases" id="increases"></td>
+                    </tr>
+                    <tr>
+                        <td>Stiches: </td>
+                        <td><input name="stiches" id="stiches"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%" align="center">
+                            <input id="submit_button" type="submit" value="calculate">
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <div id="output"></div>
+        </center>
+    </body>
+</body>
